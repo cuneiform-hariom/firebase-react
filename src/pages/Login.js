@@ -3,6 +3,7 @@ import React from 'react'
 import { GoogleAuthProvider, getAuth, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { app } from '../firebase';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 
 const Login = () => {
@@ -21,14 +22,25 @@ const Login = () => {
         initialValues,
         onSubmit: (values) => {
             signInWithEmailAndPassword(auth, values.email, values.password)
-                .then(user => console.log(user))
-                .catch((error) => console.log("error: ", error));
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    console.log('user: ', user.uid);
+                    toast.success("Logged in successfully!")
+                    // navigate("/allusers")
+
+                })
+                .catch((error) => {
+                    toast.error("Invalid Credentials")
+                });
         }
     })
 
     const handleGoogleLogin = () => {
         signInWithPopup(auth, provider)
-            .then(res => console.log(res))
+            .then(() =>
+                toast.success("Logged in successfully"),
+                navigate("/allusers")
+            )
             .catch(err => console.log(err))
     }
 

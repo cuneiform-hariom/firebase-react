@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { getFirestore, collection, deleteDoc, doc, onSnapshot, query } from 'firebase/firestore';
 import { app } from '../firebase';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 const AllUsers = () => {
     const navigate = useNavigate()
     const [users, setUsers] = useState([]);
     console.log('users: ', users);
     const db = getFirestore(app);
+
 
     useEffect(() => {
         const q = query(collection(db, "users"));
@@ -22,8 +24,9 @@ const AllUsers = () => {
     }, [db]);
 
     const handleDelete = async (id) => {
-        const res = await deleteDoc(doc(db, "users", id));
-        console.log('res: ', res);
+        console.log("id:", id)
+        await deleteDoc(doc(db, "users", id));
+        toast.success("User deleted!")
     }
 
     return (

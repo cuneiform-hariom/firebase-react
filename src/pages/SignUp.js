@@ -1,6 +1,6 @@
 import { useFormik } from 'formik'
 import React from 'react'
-import { getAuth, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, updateProfile, sendEmailVerification } from "firebase/auth";
 import { app } from '../firebase';
 import { useNavigate } from 'react-router-dom';
 
@@ -13,19 +13,32 @@ const SignUp = () => {
     const navigate = useNavigate()
 
     const initialValues = {
+        name: "",
+        phone: "",
         email: "",
         password: ""
     }
-
     const formik = useFormik({
         initialValues,
-        onSubmit: (values) => {
+        onSubmit: async (values) => {
             console.log('values: ', values);
-            createUserWithEmailAndPassword(auth, values.email, values.password)
-                .then(user => console.log(user))
-                .catch((error) => console.log("error: ", error));
-        }
-    })
+            await createUserWithEmailAndPassword(auth, values.email, values.password)
+                .then(async (userCredential) => {
+                    const user = userCredential.user;
+                    return updateProfile(user, { displayName: values.name, phoneNumber: values.phone })
+                        .then(() => {
+                            console.log('user: ', user);
+                            sendEmailVerification(user).catch((error) => alert(error.message));
+                        })
+                })
+                .catch((error) => {
+                    var errorCode = error.code;
+                    var errorMessage = error.message;
+                    console.log("Error : ", errorCode, errorMessage);
+                });
+        },
+    });
+
 
     const handleGoogleLogin = () => {
         signInWithPopup(auth, provider)
@@ -37,6 +50,22 @@ const SignUp = () => {
         <div className='signup-page'>
             <form onSubmit={formik.handleSubmit}>
                 <h3 className="t-center">Sign Up</h3>
+                <input
+                    type="text"
+                    name="name"
+                    placeholder='Name'
+                    value={formik.values.name}
+                    onChange={formik.handleChange}
+                    autoComplete='off'
+                />
+                <input
+                    type="tel"
+                    name="phone"
+                    placeholder='Phone'
+                    value={formik.values.phone}
+                    onChange={formik.handleChange}
+                    autoComplete='off'
+                />
                 <input
                     type="email"
                     name="email"

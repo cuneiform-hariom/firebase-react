@@ -6,6 +6,8 @@ import Login from './pages/Login'
 import AddUser from './pages/AddUser'
 import AllUsers from './pages/AllUsers'
 import SingleUser from './pages/SingleUser'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css';
 
 const App = () => {
 
@@ -24,6 +26,7 @@ const App = () => {
   return (
     <div>
       <RouterProvider router={router} />
+      <ToastContainer />
     </div>
   )
 }
